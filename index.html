@@ -258,10 +258,12 @@
                 .call(leftGridlines);
 
             // x axis
-            let bottomAxis = d3.axisBottom(speedScale);
+            let bottomAxis = d3.axisBottom(speedScale)
+                .ticks(8);
             let bottomGridlines = d3.axisBottom(speedScale)
                 .tickSize(-chartHeight - 10)
                 .tickFormat("")
+                .ticks(8)
             annotations.append("g")
                 .attr("class", "x axis")
                 .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
