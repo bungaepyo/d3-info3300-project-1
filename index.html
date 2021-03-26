@@ -32,8 +32,11 @@
 
 <body>
     <div class="graph-1">
-        <h2>Graph #1</h2>
-        <svg id="alt_fuel_stations" height="600" width="900"></svg>
+        <h2>New Electric Charging Station by Year</h2>
+        <svg id="alt_fuel_stations" height="600" width="900">
+            <text x="100" y="260" transform="rotate(-90 40 290)" text-anchor="end" alignment-baseline="hanging">New Station Count</text>
+            <text x="500" y="580" text-anchor="end" alignment-baseline="hanging">Year</text>
+        </svg>
     </div>
     <div class="graph-2">
         <h2>Top Speed V.S Range by Brand</h2>
@@ -56,7 +59,7 @@
     const svg = d3.select("#alt_fuel_stations");
     const width = svg.attr("width");
     const height = svg.attr("height");
-    const margins = {top: 30, right: 30, bottom: 50, left: 50};
+    const margins = {top: 30, right: 30, bottom: 70, left: 85};
     const plotWidth = width - margins.left - margins.right;
     const plotHeight = height - margins.top - margins.bottom;
 
@@ -132,26 +135,22 @@
                   .y( d => countScale(d['Count']) )
                   .curve(d3.curveMonotoneX);
         
-        // Add lines
+        // Lines
         plotArea.append("path")
                 .datum(openYear)
                 .attr("class", "line")
                 .attr("fill", "none")
-                .attr("stroke", "steelblue")
+                .attr("stroke", "darkseagreen")
                 .attr("stroke-width", 3)
                 .attr("d", lineGen);
   
-        // Add circles
+        // Circles
         plotArea.selectAll("circle").data(openYear)
                 .join("circle")
                 .attr("r", 3)
-                .attr("fill", "navy")
+                .attr("fill", "darkgreen")
                 .attr("cx", d => yearScale(d['Year']) )
                 .attr("cy", d => countScale(d['Count']) );
-
-
-        //Filter out 2021 because the statistics for this year is not complete
-        openYear = openYear.filter((d) => d['Year'].toString() !== "2021")
 
     });
 </script>
