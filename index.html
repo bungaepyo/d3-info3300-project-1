@@ -7,8 +7,18 @@
             font-family: Arial;
         }
 
+        .graph-1,
+        .graph-2 {
+            width: 900px;
+        }
+
         h2 {
-            margin-bottom: 5px;
+            text-align: center;
+            margin: 0px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            color: white;
+            background-color: rgb(27, 27, 27);
         }
 
         .svg {
@@ -17,9 +27,11 @@
         }
 
         .legend {
+            padding-top: 10px;
             display: flex;
-            flex-wrap: wrap;
-            width: 800px;
+            width: 900px;
+            background-color: rgb(27, 27, 27);
+            justify-content: center;
         }
 
         .legend div {
@@ -51,24 +63,26 @@
 <body>
     <div class="graph-1">
         <h2 class="title label">Growth Trend of New Electric Charging Stations</h2>
-        <svg class="svg" id="lineGraph" height="600" width="900">
+        <svg class="svg" id="lineGraph" height="610" width="900">
             <text class="label" x="100" y="260" transform="rotate(-90 40 290)" text-anchor="end"
                 alignment-baseline="hanging" fill="white">New Station Count</text>
-            <text class="label" x="500" y="580" text-anchor="end" alignment-baseline="hanging" fill="white">Year</text>
+            <text class="label" x="450" y="580" text-anchor="center" alignment-baseline="hanging"
+                fill="white">Year</text>
         </svg>
     </div>
+    <br />
     <div class="graph-2">
         <h2 class="title label">Top Speed V.S Range by Brand</h2>
-        <svg class="svg" id="scatterplot" height="600" width="900">
+        <div id="scatterLegend" class="legend"></div>
+        <svg class="svg" id="scatterplot" height="610" width="900">
 
             <text id="label" x="590" y="5" text-anchor="end" alignment-baseline="hanging"></text>
             <text class="label" x="100" y="260" transform="rotate(-90 40 290)" text-anchor="end"
-                alignment-baseline="hanging" fill="white">Price (euro)</text>
-            <text class="label" x="530" y="580" text-anchor="end" alignment-baseline="hanging" fill="white">Top Speed
-                (km/h)</text>
+                alignment-baseline="hanging" fill="white">Price (Euro)</text>
+            <text class="label" x="400" y="580" text-anchor="center" alignment-baseline="hanging" fill="white">Top
+                Speed(km/h)</text>
         </svg>
 
-        <div id="scatterLegend" class="legend"></div>
     </div>
 </body>
 
@@ -178,7 +192,7 @@
 
     const width2 = svg2.attr("width");
     const height2 = svg2.attr("height");
-    const margin = { top: 30, right: 30, bottom: 70, left: 90 };
+    const margin = { top: 30, right: 30, bottom: 70, left: 80 };
 
     const chartWidth = width2 - margin.left - margin.right;
     const chartHeight = height2 - margin.top - margin.bottom;
