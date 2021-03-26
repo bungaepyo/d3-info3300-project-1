@@ -60,11 +60,10 @@
 
         .circleText {
             text-anchor: middle;
-            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-family: "Trebuchet MS";
             font-size: 15px;
-            fill: greenyellow;
+            fill: rgb(162, 235, 150);
         }
-
     </style>
 </head>
 
@@ -192,19 +191,19 @@
             .attr("cy", d => countScale(d['Count']));
 
         plotArea.selectAll("text")
-                .data(openYear.filter( d =>
-                    d.Year.toString() === "2008" ||
-                    d.Year.toString() === "2012" ||
-                    d.Year.toString() === "2016" ||
-                    d.Year.toString() === "2018" ||
-                    d.Year.toString() === "2020"
-                ))
-                .enter()
-                .append("text")
-                .text(d => d.Count)
-                .attr("class", "circleText")
-                .attr("x", d => yearScale(d['Year']))
-                .attr("y", d => countScale(d['Count'])-10);
+            .data(openYear.filter(d =>
+                d.Year.toString() === "2008" ||
+                d.Year.toString() === "2012" ||
+                d.Year.toString() === "2016" ||
+                d.Year.toString() === "2018" ||
+                d.Year.toString() === "2020"
+            ))
+            .enter()
+            .append("text")
+            .text(d => d.Count)
+            .attr("class", "circleText")
+            .attr("x", d => yearScale(d['Year']))
+            .attr("y", d => countScale(d['Count']) - 10);
 
     });
 </script>
