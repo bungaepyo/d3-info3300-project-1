@@ -57,6 +57,14 @@
         .title {
             font-size: xx-large;
         }
+
+        .circleText {
+            text-anchor: middle;
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: 15px;
+            fill: greenyellow;
+        }
+
     </style>
 </head>
 
@@ -72,7 +80,7 @@
     </div>
     <br />
     <div class="graph-2">
-        <h2 class="title label">Top Speed V.S Range by Brand</h2>
+        <h2 class="title label">Relationship between Top Speed and Price</h2>
         <div id="scatterLegend" class="legend"></div>
         <svg class="svg" id="scatterplot" height="610" width="900">
 
@@ -182,6 +190,21 @@
             .attr("fill", "rgb(162, 235, 150)")
             .attr("cx", d => yearScale(d['Year']))
             .attr("cy", d => countScale(d['Count']));
+
+        plotArea.selectAll("text")
+                .data(openYear.filter( d =>
+                    d.Year.toString() === "2008" ||
+                    d.Year.toString() === "2012" ||
+                    d.Year.toString() === "2016" ||
+                    d.Year.toString() === "2018" ||
+                    d.Year.toString() === "2020"
+                ))
+                .enter()
+                .append("text")
+                .text(d => d.Count)
+                .attr("class", "circleText")
+                .attr("x", d => yearScale(d['Year']))
+                .attr("y", d => countScale(d['Count'])-10);
 
     });
 </script>
