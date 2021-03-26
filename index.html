@@ -6,6 +6,26 @@
         * {
             font-family: Arial;
         }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            width: 800px;
+        }
+
+        .legend div {
+            margin: 5px;
+            color: white;
+            padding: 10px;
+        }
+
+        .gridlines line {
+            stroke: #bbb;
+        }
+
+        .gridlines .domain {
+            stroke: none;
+        }
     </style>
 </head>
 
@@ -13,6 +33,15 @@
     <div class="graph-1">
         <h2>Graph #1</h2>
         <svg id="alt_fuel_stations" height="600" width="900"></svg>
+    </div>
+    <div class="graph-2">
+        <h2>Graph #2</h2>
+        <svg id="scatterplot" height="500" width="800">
+
+            <text id="label" x="590" y="5" text-anchor="end" alignment-baseline="hanging"></text>
+        </svg>
+
+        <div id="scatterLegend" class="legend"></div>
     </div>
 </body>
 
@@ -22,15 +51,15 @@
     const height = svg.attr("height");
 
     d3.csv("alt_fuel_stations.csv").then(data => {
-        
+
         //Filter out datapoints without open date
         data = data.filter((d) => d['Open Date'] !== "");
 
-        
+
         const timeParser = d3.timeParse('%Y-%m-%d');
         let openYear = [];
 
-        data.forEach( d => {
+        data.forEach(d => {
             //Parse "Open Date" and get "Open Year"
             let date = timeParser(d["Open Date"]);
             d['Open Year'] = date.getFullYear();
@@ -45,12 +74,99 @@
                 openYear.find(e => e.Year == d['Open Year']).Count++;
             }
         });
-        
+
         //Filter out 2021 because the statistics for this year is not complete
         openYear = openYear.filter((d) => d['Year'].toString() !== "2021")
-        
+
 
     });
+</script>
+
+<script>
+
+    const svg2 = d3.select("svg#scatterplot");
+
+    const width2 = svg2.attr("width");
+    const height2 = svg2.attr("height");
+    const margin = { top: 10, right: 10, bottom: 40, left: 60 };
+
+    const chartWidth = width2 - margin.left - margin.right;
+    const chartHeight = height2 - margin.top - margin.bottom;
+
+    let annotations = svg2.append("g").attr("id", "annotations");
+    let chartArea = svg2.append("g").attr("id", "points")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    d3.csv("./ElectricCarData.csv", d3.autoType)
+        .then((data) => {
+
+            console.log(data);
+
+            var companies = [... new Set(data.map(d => d['Brand']))];
+
+            // scale
+            const rangeExtent = d3.extent(data, d => d['Range_Km']);
+            const rangeScale = d3.scaleLinear().domain([0, rangeExtent[1]]).range([0, chartWidth]);
+
+            const speedExtent = d3.extent(data, d => d['TopSpeed_KmH']);
+            const speedScale = d3.scaleLinear().domain([0, speedExtent[1]]).range([chartHeight, 0]);
+
+            const companyScale = d3.scaleOrdinal(d3.schemeTableau10);
+
+            // y axis
+            let leftAxis = d3.axisLeft(speedScale);
+            let leftGridlines = d3.axisLeft(speedScale)
+                .tickSize(-chartWidth - 10)
+                .tickFormat("")
+            annotations.append("g")
+                .attr("class", "y axis")
+                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                .call(leftAxis)
+            annotations.append("g")
+                .attr("class", "y gridlines")
+                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                .call(leftGridlines);
+
+            // x axis
+            let bottomAxis = d3.axisBottom(rangeScale);
+            let bottomGridlines = d3.axisBottom(rangeScale)
+                .tickSize(-chartHeight - 10)
+                .tickFormat("")
+                .ticks(5);
+            annotations.append("g")
+                .attr("class", "x axis")
+                .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+                .call(bottomAxis);
+            annotations.append("g")
+                .attr("class", "x gridlines")
+                .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+                .call(bottomGridlines);
+
+            // circles
+            chartArea.selectAll("circle").data(data)
+                .join("circle")
+                .attr("r", 7)
+                .attr("opacity", 0.7)
+                .attr("fill", d => companyScale(d['Brand']))
+                .attr("cx", d => rangeScale(d['Range_Km']))
+                .attr("cy", d => speedScale(d['TopSpeed_KmH']))
+
+            // legend
+            companyScale.domain().forEach(function (d, i) {
+                d3.select("#scatterLegend")
+                    .append("div")
+                    .text(d)
+                    .style("background-color", companyScale(d))
+            });
+
+
+        },
+            (error) => { console.log(error) });
+
+
+
+
+
 </script>
 
 </html>
