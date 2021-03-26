@@ -50,12 +50,12 @@
     const svg = d3.select("#alt_fuel_stations");
     const width = svg.attr("width");
     const height = svg.attr("height");
-    const margin = {top: 30, right: 30, bottom: 50, left: 50};
-    const plotWidth = width - margin.left - margin.right;
-    const plotHeight = height - margin.top - margin.bottom;
+    const margins = {top: 30, right: 30, bottom: 50, left: 50};
+    const plotWidth = width - margins.left - margins.right;
+    const plotHeight = height - margins.top - margins.bottom;
 
-    let annotations = svg.append("g").attr("id","annotations");
-    let plotArea = svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
+    let annotation = svg.append("g").attr("id","annotations");
+    let plotArea = svg.append("g").attr("transform",`translate(${margins.left},${margins.top})`);
 
     d3.csv("alt_fuel_stations.csv").then(data => {
         
@@ -103,21 +103,21 @@
         let leftGridlines = d3.axisLeft(countScale)
                               .tickSize(-plotWidth-10)
                               .tickFormat("")
-        annotations.append("g")
+        annotation.append("g")
             .attr("class", "y axis")
-            .attr("transform",`translate(${margin.left-10},${margin.top})`)
+            .attr("transform",`translate(${margins.left-10},${margins.top})`)
             .call(leftAxis)
-        annotations.append("g")
+        annotation.append("g")
             .attr("class", "y gridlines")
-            .attr("transform",`translate(${margin.left},${margin.top})`)
+            .attr("transform",`translate(${margins.left},${margins.top})`)
             .call(leftGridlines);
         
         // X axis & Gridlines
         let bottomAxis = d3.axisBottom(yearScale).tickFormat(d3.format("d"));
 
-        annotations.append("g")
+        annotation.append("g")
             .attr("class", "x axis")
-            .attr("transform",`translate(${margin.left},${plotHeight+margin.top+10})`)
+            .attr("transform",`translate(${margins.left},${plotHeight+margins.top+10})`)
             .call(bottomAxis);
 
         // Initiate a line generator
