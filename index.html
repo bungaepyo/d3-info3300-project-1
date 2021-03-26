@@ -1,16 +1,56 @@
 <html>
 
 <head>
-  <script src="https://d3js.org/d3.v6.min.js"></script>
-  <style>
-    * {
-      font-family: Arial;
-    }
-  </style>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        * {
+            font-family: Arial;
+        }
+    </style>
 </head>
 
 <body>
-  <p>Hello</p>
+    <div class="graph-1">
+        <h2>Graph #1</h2>
+        <svg id="alt_fuel_stations" height="600" width="900"></svg>
+    </div>
 </body>
+
+<script class="graph-1-script">
+    const svg = d3.select("#alt_fuel_stations");
+    const width = svg.attr("width");
+    const height = svg.attr("height");
+
+    d3.csv("alt_fuel_stations.csv").then(data => {
+        
+        //Filter out datapoints without open date
+        data = data.filter((d) => d['Open Date'] !== "");
+
+        
+        const timeParser = d3.timeParse('%Y-%m-%d');
+        let openYear = [];
+
+        data.forEach( d => {
+            //Parse "Open Date" and get "Open Year"
+            let date = timeParser(d["Open Date"]);
+            d['Open Year'] = date.getFullYear();
+
+            //Store open information by year
+            if (!openYear.some(e => e.Year == d['Open Year'])) {
+                openYear.push({
+                    "Year": d['Open Year'],
+                    "Count": 1
+                })
+            } else {
+                openYear.find(e => e.Year == d['Open Year']).Count++;
+            }
+        });
+        
+        //Filter out 2021 because the statistics for this year is not complete
+        openYear = openYear.filter((d) => d['Year'].toString() !== "2021")
+        
+
+    });
+</script>
 
 </html>
