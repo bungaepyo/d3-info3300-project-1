@@ -25,6 +25,7 @@
 
         .gridlines .domain {
             stroke: none;
+
         }
     </style>
 </head>
@@ -55,10 +56,16 @@
     const svg = d3.select("#alt_fuel_stations");
     const width = svg.attr("width");
     const height = svg.attr("height");
+    const margins = {top: 30, right: 30, bottom: 50, left: 50};
+    const plotWidth = width - margins.left - margins.right;
+    const plotHeight = height - margins.top - margins.bottom;
+
+    let annotation = svg.append("g").attr("id","annotations");
+    let plotArea = svg.append("g").attr("transform",`translate(${margins.left},${margins.top})`);
 
     d3.csv("alt_fuel_stations.csv").then(data => {
-
-        //Filter out datapoints without open date
+        
+        // Filter out datapoints without open date
         data = data.filter((d) => d['Open Date'] !== "");
 
 
@@ -67,10 +74,11 @@
 
         data.forEach(d => {
             //Parse "Open Date" and get "Open Year"
+
             let date = timeParser(d["Open Date"]);
             d['Open Year'] = date.getFullYear();
 
-            //Store open information by year
+            // Store open information by year
             if (!openYear.some(e => e.Year == d['Open Year'])) {
                 openYear.push({
                     "Year": d['Open Year'],
@@ -80,10 +88,70 @@
                 openYear.find(e => e.Year == d['Open Year']).Count++;
             }
         });
+        
+        // Filter out 2021 because the statistics for this year is not complete
+        openYear = openYear.filter((d) => d['Year'].toString() !== "2021")
+
+        // Sort openYear in order of time
+        openYear.sort(function(year1,year2) {
+            return year2.Year - year1.Year
+        });
+        
+        // Extents & Scales
+        const countExtent = d3.extent(openYear, d => d['Count']);
+        const countScale = d3.scaleLinear().domain(countExtent).range([plotHeight, 0]);
+        
+        const yearExtent = d3.extent(openYear, d => d['Year']);
+        const yearScale = d3.scaleLinear().domain(yearExtent).range([0,plotWidth]);
+        
+        // Y axis & Gridlines
+        let leftAxis = d3.axisLeft(countScale)
+        let leftGridlines = d3.axisLeft(countScale)
+                              .tickSize(-plotWidth-10)
+                              .tickFormat("")
+        annotation.append("g")
+            .attr("class", "y axis")
+            .attr("transform",`translate(${margins.left-10},${margins.top})`)
+            .call(leftAxis)
+        annotation.append("g")
+            .attr("class", "y gridlines")
+            .attr("transform",`translate(${margins.left},${margins.top})`)
+            .call(leftGridlines);
+        
+        // X axis & Gridlines
+        let bottomAxis = d3.axisBottom(yearScale).tickFormat(d3.format("d"));
+
+        annotation.append("g")
+            .attr("class", "x axis")
+            .attr("transform",`translate(${margins.left},${plotHeight+margins.top+10})`)
+            .call(bottomAxis);
+
+        // Initiate a line generator
+        var lineGen = d3.line()
+                  .x( d => yearScale(d['Year']) )
+                  .y( d => countScale(d['Count']) )
+                  .curve(d3.curveMonotoneX);
+        
+        // Add lines
+        plotArea.append("path")
+                .datum(openYear)
+                .attr("class", "line")
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 3)
+                .attr("d", lineGen);
+  
+        // Add circles
+        plotArea.selectAll("circle").data(openYear)
+                .join("circle")
+                .attr("r", 3)
+                .attr("fill", "navy")
+                .attr("cx", d => yearScale(d['Year']) )
+                .attr("cy", d => countScale(d['Count']) );
+
 
         //Filter out 2021 because the statistics for this year is not complete
         openYear = openYear.filter((d) => d['Year'].toString() !== "2021")
-
 
     });
 </script>
