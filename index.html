@@ -35,15 +35,21 @@
         <svg id="alt_fuel_stations" height="600" width="900"></svg>
     </div>
     <div class="graph-2">
-        <h2>Graph #2</h2>
-        <svg id="scatterplot" height="500" width="800">
+        <h2>Top Speed V.S Range by Brand</h2>
+        <svg id="scatterplot" height="600" width="900">
 
             <text id="label" x="590" y="5" text-anchor="end" alignment-baseline="hanging"></text>
+            <text x="100" y="260" transform="rotate(-90 40 290)" text-anchor="end" alignment-baseline="hanging">Range
+                (km)</text>
+            <text x="530" y="580" text-anchor="end" alignment-baseline="hanging">Top Speed (km/h)</text>
         </svg>
 
         <div id="scatterLegend" class="legend"></div>
     </div>
 </body>
+
+
+
 
 <script class="graph-1-script">
     const svg = d3.select("#alt_fuel_stations");
@@ -88,7 +94,7 @@
 
     const width2 = svg2.attr("width");
     const height2 = svg2.attr("height");
-    const margin = { top: 10, right: 10, bottom: 40, left: 60 };
+    const margin = { top: 10, right: 10, bottom: 60, left: 80 };
 
     const chartWidth = width2 - margin.left - margin.right;
     const chartHeight = height2 - margin.top - margin.bottom;
@@ -105,17 +111,17 @@
             var companies = [... new Set(data.map(d => d['Brand']))];
 
             // scale
-            const rangeExtent = d3.extent(data, d => d['Range_Km']);
-            const rangeScale = d3.scaleLinear().domain([0, rangeExtent[1]]).range([0, chartWidth]);
-
             const speedExtent = d3.extent(data, d => d['TopSpeed_KmH']);
-            const speedScale = d3.scaleLinear().domain([0, speedExtent[1]]).range([chartHeight, 0]);
+            const speedScale = d3.scaleLinear().domain([0, speedExtent[1]]).range([0, chartWidth]);
+
+            const rangeExtent = d3.extent(data, d => d['Range_Km']);
+            const rangeScale = d3.scaleLinear().domain([0, rangeExtent[1]]).range([chartHeight, 0]);
 
             const companyScale = d3.scaleOrdinal(d3.schemeTableau10);
 
             // y axis
-            let leftAxis = d3.axisLeft(speedScale);
-            let leftGridlines = d3.axisLeft(speedScale)
+            let leftAxis = d3.axisLeft(rangeScale);
+            let leftGridlines = d3.axisLeft(rangeScale)
                 .tickSize(-chartWidth - 10)
                 .tickFormat("")
             annotations.append("g")
@@ -128,8 +134,8 @@
                 .call(leftGridlines);
 
             // x axis
-            let bottomAxis = d3.axisBottom(rangeScale);
-            let bottomGridlines = d3.axisBottom(rangeScale)
+            let bottomAxis = d3.axisBottom(speedScale);
+            let bottomGridlines = d3.axisBottom(speedScale)
                 .tickSize(-chartHeight - 10)
                 .tickFormat("")
                 .ticks(5);
@@ -145,7 +151,7 @@
             // circles
             chartArea.selectAll("circle").data(data)
                 .join("circle")
-                .attr("r", 7)
+                .attr("r", 9)
                 .attr("opacity", 0.7)
                 .attr("fill", d => companyScale(d['Brand']))
                 .attr("cx", d => rangeScale(d['Range_Km']))
