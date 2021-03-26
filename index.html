@@ -7,6 +7,10 @@
             font-family: Arial;
         }
 
+        .svg {
+            background-color: lightyellow;
+        }
+
         .legend {
             display: flex;
             flex-wrap: wrap;
@@ -27,36 +31,43 @@
             stroke: none;
 
         }
+
+        .label {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: large;
+        }
+
+        .title {
+            font-size: xx-large;
+        }
+
     </style>
 </head>
 
 <body>
     <div class="graph-1">
-        <h2>New Electric Charging Station by Year</h2>
-        <svg id="alt_fuel_stations" height="600" width="900">
-            <text x="100" y="260" transform="rotate(-90 40 290)" text-anchor="end" alignment-baseline="hanging">New Station Count</text>
-            <text x="500" y="580" text-anchor="end" alignment-baseline="hanging">Year</text>
+        <h2 class="title label">Growth Trend of New Electric Charging Stations</h2>
+        <svg class="svg" id="lineGraph" height="600" width="900">
+            <text class="label" x="100" y="260" transform="rotate(-90 40 290)" text-anchor="end" alignment-baseline="hanging">New Station Count</text>
+            <text class="label" x="500" y="580" text-anchor="end" alignment-baseline="hanging">Year</text>
         </svg>
     </div>
     <div class="graph-2">
-        <h2>Top Speed V.S Range by Brand</h2>
-        <svg id="scatterplot" height="600" width="900">
+        <h2 class="title label">Top Speed V.S Range by Brand</h2>
+        <svg class="svg" id="scatterplot" height="600" width="900">
 
             <text id="label" x="590" y="5" text-anchor="end" alignment-baseline="hanging"></text>
-            <text x="100" y="260" transform="rotate(-90 40 290)" text-anchor="end" alignment-baseline="hanging">Range
+            <text class="label" x="100" y="260" transform="rotate(-90 40 290)" text-anchor="end" alignment-baseline="hanging">Range
                 (km)</text>
-            <text x="530" y="580" text-anchor="end" alignment-baseline="hanging">Top Speed (km/h)</text>
+            <text class="label" x="530" y="580" text-anchor="end" alignment-baseline="hanging">Top Speed (km/h)</text>
         </svg>
 
         <div id="scatterLegend" class="legend"></div>
     </div>
 </body>
 
-
-
-
 <script class="graph-1-script">
-    const svg = d3.select("#alt_fuel_stations");
+    const svg = d3.select("#lineGraph");
     const width = svg.attr("width");
     const height = svg.attr("height");
     const margins = {top: 30, right: 30, bottom: 70, left: 85};
@@ -120,8 +131,8 @@
             .attr("class", "y gridlines")
             .attr("transform",`translate(${margins.left},${margins.top})`)
             .call(leftGridlines);
-        
-        // X axis & Gridlines
+
+        // X axis
         let bottomAxis = d3.axisBottom(yearScale).tickFormat(d3.format("d"));
 
         annotation.append("g")
@@ -235,10 +246,6 @@
 
         },
             (error) => { console.log(error) });
-
-
-
-
 
 </script>
 
