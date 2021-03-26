@@ -56,15 +56,15 @@
     const svg = d3.select("#alt_fuel_stations");
     const width = svg.attr("width");
     const height = svg.attr("height");
-    const margins = {top: 30, right: 30, bottom: 50, left: 50};
+    const margins = { top: 30, right: 30, bottom: 50, left: 50 };
     const plotWidth = width - margins.left - margins.right;
     const plotHeight = height - margins.top - margins.bottom;
 
-    let annotation = svg.append("g").attr("id","annotations");
-    let plotArea = svg.append("g").attr("transform",`translate(${margins.left},${margins.top})`);
+    let annotation = svg.append("g").attr("id", "annotations");
+    let plotArea = svg.append("g").attr("transform", `translate(${margins.left},${margins.top})`);
 
     d3.csv("alt_fuel_stations.csv").then(data => {
-        
+
         // Filter out datapoints without open date
         data = data.filter((d) => d['Open Date'] !== "");
 
@@ -88,66 +88,66 @@
                 openYear.find(e => e.Year == d['Open Year']).Count++;
             }
         });
-        
+
         // Filter out 2021 because the statistics for this year is not complete
         openYear = openYear.filter((d) => d['Year'].toString() !== "2021")
 
         // Sort openYear in order of time
-        openYear.sort(function(year1,year2) {
+        openYear.sort(function (year1, year2) {
             return year2.Year - year1.Year
         });
-        
+
         // Extents & Scales
         const countExtent = d3.extent(openYear, d => d['Count']);
         const countScale = d3.scaleLinear().domain(countExtent).range([plotHeight, 0]);
-        
+
         const yearExtent = d3.extent(openYear, d => d['Year']);
-        const yearScale = d3.scaleLinear().domain(yearExtent).range([0,plotWidth]);
-        
+        const yearScale = d3.scaleLinear().domain(yearExtent).range([0, plotWidth]);
+
         // Y axis & Gridlines
         let leftAxis = d3.axisLeft(countScale)
         let leftGridlines = d3.axisLeft(countScale)
-                              .tickSize(-plotWidth-10)
-                              .tickFormat("")
+            .tickSize(-plotWidth - 10)
+            .tickFormat("")
         annotation.append("g")
             .attr("class", "y axis")
-            .attr("transform",`translate(${margins.left-10},${margins.top})`)
+            .attr("transform", `translate(${margins.left - 10},${margins.top})`)
             .call(leftAxis)
         annotation.append("g")
             .attr("class", "y gridlines")
-            .attr("transform",`translate(${margins.left},${margins.top})`)
+            .attr("transform", `translate(${margins.left},${margins.top})`)
             .call(leftGridlines);
-        
+
         // X axis & Gridlines
         let bottomAxis = d3.axisBottom(yearScale).tickFormat(d3.format("d"));
 
         annotation.append("g")
             .attr("class", "x axis")
-            .attr("transform",`translate(${margins.left},${plotHeight+margins.top+10})`)
+            .attr("transform", `translate(${margins.left},${plotHeight + margins.top + 10})`)
             .call(bottomAxis);
 
         // Initiate a line generator
         var lineGen = d3.line()
-                  .x( d => yearScale(d['Year']) )
-                  .y( d => countScale(d['Count']) )
-                  .curve(d3.curveMonotoneX);
-        
+            .x(d => yearScale(d['Year']))
+            .y(d => countScale(d['Count']))
+            .curve(d3.curveMonotoneX);
+
         // Add lines
         plotArea.append("path")
-                .datum(openYear)
-                .attr("class", "line")
-                .attr("fill", "none")
-                .attr("stroke", "steelblue")
-                .attr("stroke-width", 3)
-                .attr("d", lineGen);
-  
+            .datum(openYear)
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 3)
+            .attr("d", lineGen);
+
         // Add circles
         plotArea.selectAll("circle").data(openYear)
-                .join("circle")
-                .attr("r", 3)
-                .attr("fill", "navy")
-                .attr("cx", d => yearScale(d['Year']) )
-                .attr("cy", d => countScale(d['Count']) );
+            .join("circle")
+            .attr("r", 3)
+            .attr("fill", "navy")
+            .attr("cx", d => yearScale(d['Year']))
+            .attr("cy", d => countScale(d['Count']));
 
 
         //Filter out 2021 because the statistics for this year is not complete
@@ -174,18 +174,23 @@
     d3.csv("./ElectricCarData.csv", d3.autoType)
         .then((data) => {
 
-            console.log(data);
+            // var companies = [... new Set(data.map(d => d['Brand']))];
 
-            var companies = [... new Set(data.map(d => d['Brand']))];
+            data = data.filter(d =>
+                d['Brand'] == "Tesla" || d['Brand'] == "Porsche" || d['Brand'] == "Audi"
+                || d['Brand'] == "Jaguar" || d['Brand'] == "Hyundai" || d['Brand'] == "Chevrolet"
+                || d['Brand'] == "Kia" || d['Brand'] == "BMW" || d['Brand'] == "Mini"
+                || d['Brand'] == "Nissan"
+            );
 
             // scale
             const speedExtent = d3.extent(data, d => d['TopSpeed_KmH']);
             const speedScale = d3.scaleLinear().domain([0, speedExtent[1]]).range([0, chartWidth]);
 
-            const rangeExtent = d3.extent(data, d => d['Range_Km']);
+            const rangeExtent = d3.extent(data, d => d['PriceEuro']);
             const rangeScale = d3.scaleLinear().domain([0, rangeExtent[1]]).range([chartHeight, 0]);
 
-            const companyScale = d3.scaleOrdinal(d3.schemeTableau10);
+            const companyScale = d3.scaleOrdinal(d3.schemeSpectral[10]);
 
             // y axis
             let leftAxis = d3.axisLeft(rangeScale);
@@ -222,8 +227,8 @@
                 .attr("r", 9)
                 .attr("opacity", 0.7)
                 .attr("fill", d => companyScale(d['Brand']))
-                .attr("cx", d => rangeScale(d['Range_Km']))
-                .attr("cy", d => speedScale(d['TopSpeed_KmH']))
+                .attr("cy", d => rangeScale(d['PriceEuro']))
+                .attr("cx", d => speedScale(d['TopSpeed_KmH']))
 
             // legend
             companyScale.domain().forEach(function (d, i) {
