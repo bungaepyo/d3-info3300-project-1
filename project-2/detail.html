@@ -1,0 +1,125 @@
+<html>
+
+<head>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <style>
+    #airplane {
+      background-color: rgb(136, 198, 209);
+      /* color: #427885; */
+    }
+  </style>
+</head>
+
+<body>
+  <svg id="airplane" height="500" width="500">
+  </svg>
+
+  <input id="slider" type="range" min="0" max="400" step="1">
+</body>
+
+
+<script>
+  const svg = d3.select("svg#airplane");
+
+  const width = svg.attr("width");
+  const height = svg.attr("height");
+  const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+
+  const chartWidth = width - margin.left - margin.right;
+  const chartHeight = height - margin.top - margin.bottom;
+
+  let annotations = svg.append("g").attr("id", "annotations");
+  let chartArea = svg.append("g").attr("id", "points")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+
+
+
+
+  d3.csv("./us_travel_daily.csv", d3.autoType)
+    .then((data) => {
+      // year removed from date column
+      data.forEach((d) => {
+        d["Date"] = d["Date"].substring(0, d["Date"].lastIndexOf("/"))
+      });
+
+      // flatten the number of travelers for each year
+      let dataCleaned = [];
+      for (let c = 2019; c <= 2021; c++) {
+        for (let i = 0; i <= data.length; i++) {
+          if (data[i]) {
+            dataCleaned.push({
+              "date": new Date(data[i]["Date"] + "/" + c),
+              "travelers": data[i][c + " Traveler Throughput"] ? Number(data[i][c + " Traveler Throughput"].replace(/,/g, '')) : 0
+            });
+          }
+        }
+      }
+
+      // filter the dates
+      var startDate = new Date("1/21/2020");
+      var endDate = new Date("12/5/2020");
+
+      dataCleaned = dataCleaned.filter((d) => {
+        return d["date"] >= startDate && d["date"] <= endDate;
+      });
+
+      dataCleaned = dataCleaned.sort((a, b) => (a["date"] > b["date"]) ? 1 : -1)
+
+      // scale
+      const numExtent = d3.extent(dataCleaned, d => d['travelers']);
+      const widthScale = d3.scaleLinear().domain(numExtent).range([0, chartWidth]);
+      const heightScale = d3.scaleLinear().domain(numExtent).range([chartHeight, 0]);
+
+      let rects = [];
+
+      for (let x = 0; x <= 5; x++) {
+        for (let y = 0; y <= 20; y++) {
+          rects.push(
+            {
+              x: x * 20,
+              y: y * 20
+            });
+        }
+      }
+
+      // rectangles
+      rects.forEach((d, i) => {
+        let rect = chartArea.append("rect")
+          .attr('x', d["x"])
+          .attr('y', d["y"])
+          .attr('width', 15)
+          .attr('height', 15)
+          .attr('fill', '#60a3b2');
+      });
+
+      console.log(dataCleaned);
+
+      function showTravelers(date) {
+        svg.selectAll("rect").data(rects)
+          .join(
+            enter => {
+              enter.append("rect")
+                .attr("fill", '#427885')
+            },
+            update => update
+              .attr("fill", '#427885'),
+            exit => {
+              exit.remove()
+            }
+          );
+      }
+
+      showTravelers();
+
+
+    }, (error) => {
+      console.log(error);
+    });
+
+  let slider = document.getElementById("slider");
+
+  slider.addEventListener('input', () => showTravelers(slider.value))
+</script>
+
+</html>
