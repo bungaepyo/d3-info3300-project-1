@@ -1,15 +1,94 @@
 <html>
-
     <head>
         <script src="https://d3js.org/d3.v6.min.js"></script>
+        <script src="https://d3js.org/topojson.v3.min.js"></script>
+        
         <style>
+            .outline {
+                stroke: #fff;
+                stroke-width: 1px;
+                fill: none;
+            }
         </style>
     </head>
 
     <body>
+        <svg id="usCovidSvg" height="610" width="975"></svg>
     </body>
 
     <script>
+        const usCovidSvg = d3.select("#usCovidSvg");
+        const usCovidWidth = usCovidSvg.attr("width");
+        const usCovidHeight = usCovidSvg.attr("height");
+        const usCovidMap = usCovidSvg.append("g");
+
+        const requestData = async function() {
+            const us = await d3.json("counties-10m.json");
+            const usCovidCounties = await d3.csv("us_counties_covid19_daily.csv");
+            console.log(usCovidCounties);
+            const usCovidStates = await d3.csv("us_states_covid19_daily.csv");
+            console.log(usCovidStates);
+
+            const timeParser = d3.timeParse('%Y-%m-%d');
+
+            let countyByDate = [];
+            usCovidStates.forEach(d => {
+                // let parsedDate = timeParser(d.date);
+                if(d.date == "20200519") {
+                    console.log(d.date)
+                } 
+                // if there isn't already date, create key add county data to that date key
+                // if (!countyByDate.some(e => e == parsedDate)) {
+                //     countyByDate.push(
+                //         parsedDate = {}
+                //     )
+                // } else {
+                //     //else, add to the corresponding date key
+                //     // openYear.find(e => e.Year == d['Open Year']).Count++;
+                // }
+            });
+            
+            let projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 305]);
+            let path = d3.geoPath().projection(projection);
+
+            let nation = topojson.feature(us, us.objects.nation);
+            let counties = topojson.feature(us, us.objects.counties);
+            let states = topojson.feature(us, us.objects.states);
+            let statesMesh = topojson.mesh(us, us.objects.states);
+            
+            usCovidMap.selectAll("path.counties").data(counties.features)
+                      .join("path")
+                      .attr("class","counties")
+                      .attr("d", path)
+                      .attr("fill", "grey");
+
+            usCovidMap.selectAll("path.states").data(states.features)
+                      .join("path")
+                      .attr("class", "states")
+                      .attr("d", path)
+                      .attr("fill-opacity", 0)
+                      .on("mouseenter", mouseEnterState)
+                      .on("mouseout",  mouseLeaveState);
+                
+            usCovidMap.append("path").datum(statesMesh)
+                      .attr("class","outline")
+                      .attr("d", path);
+
+            // State mouse enter
+            function mouseEnterState() {
+                let state = d3.select(this);
+                state.attr("fill-opacity", 1);
+            }
+            
+            // State mouse out
+            function mouseLeaveState() {
+                let state = d3.select(this);
+                state.attr("fill-opacity", 0);
+            }
+
+        }
+        requestData();
+
     </script>
 
 </html>
