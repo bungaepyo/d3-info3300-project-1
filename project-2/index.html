@@ -21,7 +21,7 @@
         <svg id="usCovidSvg" height="610" width="975"></svg>
         <div>
             <p id="date"></p>
-            <input id="slider" type="range" min="0" max="384" step="1" value="0">
+            <input id="slider" type="range" min="0" max="418" step="1" value="0">
         </div>
         <div>
             <p id="stateName"></p>
@@ -61,7 +61,7 @@
             let stateByDate = [];
             usCovidStates.forEach(d => {
                 let positiveIncrease = parseInt(d.positiveIncrease);
-                if (positiveIncrease > 0) {
+                if (positiveIncrease > -1) {
                     if (!stateByDate.some(e => e.date === d.date)) {
                         stateByDate.push({
                             "date": d.date,
