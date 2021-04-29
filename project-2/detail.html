@@ -34,7 +34,7 @@
   let chartArea = svg.append("g").attr("id", "points")
     .attr("transform", `translate(-50,-50)`);
 
-  d3.csv("./us_travel_daily.csv", d3.autoType)
+  d3.csv("datasets/us_travel_daily.csv", d3.autoType)
     .then((data) => {
       let dataCleaned = [];
 
