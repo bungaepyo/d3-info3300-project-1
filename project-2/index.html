@@ -51,18 +51,18 @@
 
             // state covid count by date
             let stateByDate = [];
-            let maxIncrease = 0;
             usCovidStates.forEach(d => {
                 let positiveIncrease = parseInt(d.positiveIncrease);
-                maxIncrease = Math.max(positiveIncrease, maxIncrease);
-                if (!stateByDate.some(e => e.date === d.date)) {
-                    stateByDate.push({
-                        "date": d.date,
-                        "states": {}
-                    })
-                    stateByDate.find(e => e.date == d.date).states[d.state] = positiveIncrease;
-                } else {
-                    stateByDate.find(e => e.date == d.date).states[d.state] = positiveIncrease;
+                if (positiveIncrease > -1) {
+                    if (!stateByDate.some(e => e.date === d.date)) {
+                        stateByDate.push({
+                            "date": d.date,
+                            "states": {}
+                        })
+                        stateByDate.find(e => e.date == d.date).states[d.state] = positiveIncrease;
+                    } else {
+                        stateByDate.find(e => e.date == d.date).states[d.state] = positiveIncrease;
+                    }
                 }
             });
             // invert stateByDate order to match chronological order
