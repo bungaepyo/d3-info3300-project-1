@@ -2,6 +2,15 @@
     <head>
         <script src="https://d3js.org/d3.v6.min.js"></script>
         <script src="https://d3js.org/topojson.v3.min.js"></script>
+
+        <style>
+            .mouseover {
+                stroke: black;
+                fill: none;
+                stroke-width: 3px;
+                pointer-events: none;
+            }
+        </style>
     </head>
 
     <body>
@@ -82,17 +91,22 @@
                       .attr("stroke-width", 1)
                       .attr("d", path);
 
+            let newMesh = usCovidMap.append("path")
+                                    .attr("class","mouseover")
+                                    .attr("d", "");
+
             // State mouse enter
             function mouseEnterState() {
                 let state = d3.select(this);
-                state.attr("stroke", "black")
-                     .attr("stroke-width", 5);
+                let stateID = state.datum().id;
+                let mouseOverState = topojson.mesh(us, us.objects.states, function(a, b) { return a.id === stateID || b.id === stateID; });
+                newMesh.datum(mouseOverState).attr("d", path)
             }
             
             // State mouse out
             function mouseLeaveState() {
                 let state = d3.select(this);
-                state.attr("stroke", "none");
+                newMesh.attr("d", "")
             }
 
             // Color scale
