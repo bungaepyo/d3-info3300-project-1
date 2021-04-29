@@ -10,6 +10,10 @@
                 stroke-width: 3px;
                 pointer-events: none;
             }
+
+            #slider {
+                width: 500px;
+            }
         </style>
     </head>
 
@@ -17,7 +21,7 @@
         <svg id="usCovidSvg" height="610" width="975"></svg>
         <div>
             <p id="date"></p>
-            <input id="slider" type="range" min="0" max="419" step="1" value="0">
+            <input id="slider" type="range" min="0" max="384" step="1" value="0">
         </div>
         <div>
             <p id="stateName"></p>
@@ -57,7 +61,7 @@
             let stateByDate = [];
             usCovidStates.forEach(d => {
                 let positiveIncrease = parseInt(d.positiveIncrease);
-                if (positiveIncrease > -1) {
+                if (positiveIncrease > 0) {
                     if (!stateByDate.some(e => e.date === d.date)) {
                         stateByDate.push({
                             "date": d.date,
@@ -86,7 +90,9 @@
                       .attr("class", "states")
                       .attr("d", path)
                       .attr("fill", "#d8d8d8")
-                      .attr("note", d => d.id);
+                      .attr("note", d => d.id)
+                      .on("mouseenter", mouseEnterState)
+                      .on("mouseout",  mouseLeaveState);
                 
             usCovidMap.append("path").datum(statesMesh)
                       .attr("class","outline")
@@ -109,10 +115,6 @@
                 let code = idToState[parseInt(stateID)]
                 let name = usStateNames.find(element => element.code === code).name;
                 let count = data[code];
-
-                console.log(code);
-                console.log(name);
-                console.log(count);
 
                 document.getElementById("stateName").innerHTML = name;
                 document.getElementById("stateCount").innerHTML = count > 0 ? count : 0;
@@ -140,9 +142,8 @@
                 document.getElementById("date").innerHTML = selectedDate.date;
 
                 usCovidMap.selectAll(".states")
+                          .transition().duration(200)
                           .style("fill", d => colorScale( selectedDate.states[idToState[parseInt(d.id)]]))
-                          .on("mouseenter", mouseEnterState)
-                          .on("mouseout",  mouseLeaveState);
             }
 
             // render default
