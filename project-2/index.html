@@ -16,9 +16,9 @@
         const usCovidMap = usCovidSvg.append("g");
 
         const requestData = async function() {
-            const us = await d3.json("counties-10m.json");
-            const usCovidStates = await d3.csv("all-states-history.csv");
-            const usStateNames = await d3.tsv("us-state-names.tsv");
+            const us = await d3.json("datasets/counties-10m.json");
+            const usCovidStates = await d3.csv("datasets/all-states-history.csv");
+            const usStateNames = await d3.tsv("datasets/us-state-names.tsv");
             // const timeParser = d3.timeParse('%Y-%m-%d');
             console.log(usCovidStates);
 
