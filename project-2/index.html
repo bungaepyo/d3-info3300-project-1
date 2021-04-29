@@ -6,7 +6,10 @@
 
     <body>
         <svg id="usCovidSvg" height="610" width="975"></svg>
-        <input id="slider" type="range" min="0" max="419" step="1" value="0">
+        <div>
+            <p id="date">Date</p>
+            <input id="slider" type="range" min="0" max="419" step="1" value="0">
+        </div>
     </body>
 
     <script>
@@ -92,13 +95,16 @@
                 state.attr("stroke", "none");
             }
 
+            // Color scale
+            const colorScale = d3.scaleQuantile()
+                                 .domain([0,10000])
+                                 .range(["#ffd9d9","#ffa8a8","#ff5e5e","#ff2929"]);
+
             // Render states
             function renderStates(selectedDate) {
-                // Color scale
-                const colorScale = d3.scaleQuantile()
-                                    .domain(Object.values(selectedDate.states))
-                                    .range(["#d1e8ed","#adc2da","#8879b3","#762b80"]);
                 
+                document.getElementById("date").innerHTML = selectedDate.date;
+
                 usCovidMap.selectAll(".states")
                           .style("fill", d => colorScale( selectedDate.states[idToState[parseInt(d.id)]]))
                           .on("mouseenter", mouseEnterState)
