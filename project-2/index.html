@@ -16,8 +16,12 @@
     <body>
         <svg id="usCovidSvg" height="610" width="975"></svg>
         <div>
-            <p id="date">Date</p>
+            <p id="date"></p>
             <input id="slider" type="range" min="0" max="419" step="1" value="0">
+        </div>
+        <div>
+            <p id="stateName"></p>
+            <p id="stateCount"></p>
         </div>
     </body>
 
@@ -99,6 +103,20 @@
             function mouseEnterState() {
                 let state = d3.select(this);
                 let stateID = state.datum().id;
+                let date = document.getElementById("date").innerHTML;
+                let data = stateByDate.find(e => e.date == date).states;
+                
+                let code = idToState[parseInt(stateID)]
+                let name = usStateNames.find(element => element.code === code).name;
+                let count = data[code];
+
+                console.log(code);
+                console.log(name);
+                console.log(count);
+
+                document.getElementById("stateName").innerHTML = name;
+                document.getElementById("stateCount").innerHTML = count > 0 ? count : 0;
+
                 let mouseOverState = topojson.mesh(us, us.objects.states, function(a, b) { return a.id === stateID || b.id === stateID; });
                 newMesh.datum(mouseOverState).attr("d", path)
             }
@@ -106,6 +124,8 @@
             // State mouse out
             function mouseLeaveState() {
                 let state = d3.select(this);
+                document.getElementById("stateName").innerHTML = "";
+                document.getElementById("stateCount").innerHTML = "";
                 newMesh.attr("d", "")
             }
 
