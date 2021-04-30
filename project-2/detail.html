@@ -4,7 +4,8 @@
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <style>
     #airplane {
-      background-color: rgb(172, 212, 228);
+      background-image: url("background.png");
+      background-size: cover;
       /* color: #325c66; */
     }
 
@@ -32,7 +33,7 @@
   const chartHeight = height - margin.top - margin.bottom;
 
   let chartArea = svg.append("g").attr("id", "points")
-    .attr("transform", `translate(-150,-150)`);
+    .attr("transform", `translate(-125,-90)`);
 
   d3.csv("datasets/us_travel_daily.csv", d3.autoType)
     .then((data) => {
@@ -72,8 +73,8 @@
 
         let rects = [];
         let n = 0;
-        let brightColor = '#60adc0';
-        let darkColor = '#325c66';
+        let brightColor = '#c9cbcc';
+        let darkColor = '#585858';
 
         for (let y = 0; y < 10; y++) {
           for (let x = 0; x < 10; x++) {
