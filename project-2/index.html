@@ -38,7 +38,7 @@
             </ul> -->
         </div>
         <div class="two">
-            <svg id="airplane" height="650" width="350"></svg>
+            <svg id="airplane" height="550" width="350"></svg>
         </div>
     </div>
 </body>
@@ -281,14 +281,14 @@
             // call when slider changes
             function showTravelers(index) {
                 const numExtent = d3.extent(dataCleaned, d => d['travelers']);
-                let numSquare = Math.ceil((dataCleaned[index]["travelers"] / numExtent[1]) * 120);
+                let numSquare = Math.ceil((dataCleaned[index]["travelers"] / numExtent[1]) * 96);
 
                 let rects = [];
                 let n = 0;
                 let brightColor = '#c9cbcc';
                 let darkColor = '#585858';
 
-                for (let y = 0; y < 20; y++) {
+                for (let y = 0; y < 16; y++) {
                     for (let x = 0; x < 6; x++) {
                         n++;
                         if (n > numSquare && x >= 3) {
