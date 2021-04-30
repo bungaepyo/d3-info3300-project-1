@@ -29,6 +29,15 @@
             border-radius: 5px;
         }
 
+        ul {
+            width: 800px;
+        }
+
+        ul,
+        li {
+            display: inline-block;
+        }
+
         #date {
             font-family: sans-serif;
             font-size: 100px;
@@ -40,7 +49,21 @@
     <p id="date"></p>
     <div>
         <svg id="usCovidSvg" height="650" width="975"></svg>
-        <input class="slider" id="slider" type="range" min="0" max="418" step="1" value="0">
+        <input class="slider" id="slider" type="range" min="0" max="418" step="1" value="0" list="steplist">
+        <ul>
+            <li>JAN</li>
+            <li>FEB</li>
+            <li>MAR</li>
+            <li>APR</li>
+            <li>MAY</li>
+            <li>JUN</li>
+            <li>Jul</li>
+            <li>Aug</li>
+            <li>Sep</li>
+            <li>Oct</li>
+            <li>Nov</li>
+            <li>Dec</li>
+        </ul>
     </div>
 </body>
 
@@ -208,108 +231,27 @@
 
             newMesh.attr("d", "")
         }
-    });
-    // invert stateByDate order to match chronological order
-    stateByDate = stateByDate.reverse();
-    console.log(stateByDate);
 
-    // map projection
-    let projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 305]);
-    let path = d3.geoPath().projection(projection);
+        // color scale (hardcoded 10,000 due to outliers)
+        const colorScale = d3.scaleQuantile()
+            .domain([0, 10000])
+            .range(["#ffd9d9", "#ffa8a8", "#ff5e5e", "#ff2929"]);
 
-    let nation = topojson.feature(us, us.objects.nation);
-    let states = topojson.feature(us, us.objects.states);
-    let statesMesh = topojson.mesh(us, us.objects.states);
+        // function that re-renders states according to selectedDate
+        function renderStates(selectedDate) {
 
-    usCovidMap.selectAll("path.states").data(states.features)
-        .join("path")
-        .attr("class", "states")
-        .attr("d", path)
-        .attr("fill", "#d8d8d8")
-        .attr("note", d => d.id)
-        .on("mouseenter", mouseEnterState)
-        .on("mouseout", mouseLeaveState);
+            document.getElementById("date").innerHTML = selectedDate.date;
 
-    usCovidMap.append("path").datum(statesMesh)
-        .attr("class", "outline")
-        .attr("fill", "none")
-        .attr("stroke", "white")
-        .attr("stroke-width", 1)
-        .attr("d", path);
+            usCovidMap.selectAll(".states")
+                .transition().duration(180)
+                .style("fill", d => colorScale(selectedDate.states[idToState[parseInt(d.id)]]))
+        }
 
-    let newMesh = usCovidMap.append("path")
-        .attr("class", "mouseover")
-        .attr("d", "");
+        // default render
+        renderStates(stateByDate[slider.value])
 
-    // State mouse enter
-    function mouseEnterState() {
-        let state = d3.select(this);
-        let stateID = state.datum().id;
-        let date = document.getElementById("date").innerHTML;
-        let data = stateByDate.find(e => e.date == date).states;
-
-        let code = idToState[parseInt(stateID)]
-        let name = usStateNames.find(element => element.code === code).name;
-        let count = data[code];
-
-        document.getElementById("stateName").innerHTML = name;
-        document.getElementById("stateCount").innerHTML = count > 0 ? count : 0;
-
-        let mouseOverState = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
-        newMesh.datum(mouseOverState).attr("d", path)
-    }
-
-<<<<<<< HEAD
-    // State mouse out
-    function mouseLeaveState() {
-        let state = d3.select(this);
-        document.getElementById("stateName").innerHTML = "";
-        document.getElementById("stateCount").innerHTML = "";
-        newMesh.attr("d", "")
-    }
-
-    // Color scale
-    const colorScale = d3.scaleQuantile()
-        .domain([0, 10000])
-        .range(["#ffd9d9", "#ffa8a8", "#ff5e5e", "#ff2929"]);
-
-    // Render states
-    function renderStates(selectedDate) {
-
-        document.getElementById("date").innerHTML = selectedDate.date;
-
-        usCovidMap.selectAll(".states")
-            .transition().duration(200)
-            .style("fill", d => colorScale(selectedDate.states[idToState[parseInt(d.id)]]))
-=======
-            // color scale (hardcoded 10,000 due to outliers)
-            const colorScale = d3.scaleQuantile()
-                                 .domain([0,10000])
-                                 .range(["#ffd9d9","#ffa8a8","#ff5e5e","#ff2929"]);
-
-            // function that re-renders states according to selectedDate
-            function renderStates(selectedDate) {
-
-                document.getElementById("date").innerHTML = selectedDate.date;
-
-                usCovidMap.selectAll(".states")
-                          .transition().duration(180)
-                          .style("fill", d => colorScale( selectedDate.states[idToState[parseInt(d.id)]]))
-            }
-
-            // default render
-            renderStates(stateByDate[slider.value])
-
-            // slider eventListener
-            slider.addEventListener('input', () => renderStates(stateByDate[slider.value]))
->>>>>>> d5d3e03ecf12f5f0d401b8497fccda295e59add5
-    }
-
-    // render default
-    renderStates(stateByDate[slider.value])
-
-    //slider
-    slider.addEventListener('input', () => renderStates(stateByDate[slider.value]))
+        // slider eventListener
+        slider.addEventListener('input', () => renderStates(stateByDate[slider.value]))
     }
     requestData();
 
