@@ -5,7 +5,7 @@
 
         <style>
             .mouseover {
-                stroke: black;
+                stroke: #636363;
                 fill: none;
                 stroke-width: 3px;
                 pointer-events: none;
@@ -84,22 +84,22 @@
             let nation = topojson.feature(us, us.objects.nation);
             let states = topojson.feature(us, us.objects.states);
             let statesMesh = topojson.mesh(us, us.objects.states);
+            
+            usCovidMap.append("path").datum(statesMesh)
+                      .attr("class","outline")
+                      .attr("fill", "none")
+                      .attr("d", path);
 
             usCovidMap.selectAll("path.states").data(states.features)
                       .join("path")
                       .attr("class", "states")
                       .attr("d", path)
                       .attr("fill", "#d8d8d8")
+                      .attr("stroke", "white")
+                      .attr("stroke-width", 1)
                       .attr("note", d => d.id)
                       .on("mouseenter", mouseEnterState)
                       .on("mouseout",  mouseLeaveState);
-                
-            usCovidMap.append("path").datum(statesMesh)
-                      .attr("class","outline")
-                      .attr("fill", "none")
-                      .attr("stroke", "white")
-                      .attr("stroke-width", 1)
-                      .attr("d", path);
 
             let newMesh = usCovidMap.append("path")
                                     .attr("class","mouseover")
@@ -116,6 +116,11 @@
                 let name = usStateNames.find(element => element.code === code).name;
                 let count = data[code];
 
+                usCovidMap.selectAll(".states")
+                          .attr("opacity", 0.3)
+                
+                state.attr("opacity", 1)
+
                 document.getElementById("stateName").innerHTML = name;
                 document.getElementById("stateCount").innerHTML = count > 0 ? count : 0;
 
@@ -126,8 +131,13 @@
             // State mouse out
             function mouseLeaveState() {
                 let state = d3.select(this);
+
+                usCovidMap.selectAll(".states")
+                          .attr("opacity", 1)
+
                 document.getElementById("stateName").innerHTML = "";
                 document.getElementById("stateCount").innerHTML = "";
+
                 newMesh.attr("d", "")
             }
 
