@@ -3,67 +3,43 @@
 <head>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
-
-    <style>
-        .mouseover {
-            stroke: #636363;
-            fill: none;
-            pointer-events: none;
-        }
-
-        .slider {
-            -webkit-appearance: none;
-            background: #d3d3d3;
-            width: 800px;
-            height: 15px;
-            border-radius: 5px;
-            margin-top: 30px;
-        }
-
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            background: #ff5e5e;
-            cursor: pointer;
-            width: 25px;
-            height: 25px;
-            border-radius: 5px;
-        }
-
-        ul {
-            width: 800px;
-        }
-
-        ul,
-        li {
-            display: inline-block;
-        }
-
-        #date {
-            font-family: sans-serif;
-            font-size: 100px;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
-    <p id="date"></p>
-    <div>
-        <svg id="usCovidSvg" height="650" width="975"></svg>
-        <input class="slider" id="slider" type="range" min="0" max="418" step="1" value="0" list="steplist">
-        <ul>
-            <li>JAN</li>
-            <li>FEB</li>
-            <li>MAR</li>
-            <li>APR</li>
-            <li>MAY</li>
-            <li>JUN</li>
-            <li>Jul</li>
-            <li>Aug</li>
-            <li>Sep</li>
-            <li>Oct</li>
-            <li>Nov</li>
-            <li>Dec</li>
-        </ul>
+    <div class="intro">
+        <h1>Interactive U.S. State <span>Coronavirus</span> Stats Over Time</h1>
+        <p class="name">Yubin Heo, Jason Kim, Toby Ko</p>
+        <p>COVID-19 has been impacting everyone's lives around the globe, and it is still effective now. Although
+            vaccines have developed and alleviated the terrifying speed of the spread, the horror of the increasing
+            number of infected people still exists. Our team aims to identify the chain effect the virus brought to
+            the travel industry and the correlation between them.</p>
+        <div class="slider-date">
+            <input class="slider" id="slider" type="range" min="0" max="418" step="1" value="0" list="steplist">
+            <p id="date"></p>
+        </div>
+    </div>
+    <div class="data-visual">
+        <div class="one">
+            <svg id="usCovidSvg" height="650" width="975"></svg>
+            <!-- <ul>
+                <li>JAN</li>
+                <li>FEB</li>
+                <li>MAR</li>
+                <li>APR</li>
+                <li>MAY</li>
+                <li>JUN</li>
+                <li>Jul</li>
+                <li>Aug</li>
+                <li>Sep</li>
+                <li>Oct</li>
+                <li>Nov</li>
+                <li>Dec</li>
+            </ul> -->
+        </div>
+        <div class="two">
+            <svg id="airplane" height="650" width="350"></svg>
+        </div>
     </div>
 </body>
 
@@ -131,7 +107,7 @@
             .join("path")
             .attr("class", "states")
             .attr("d", path)
-            .attr("fill", "#d8d8d8")
+            .attr("fill", "#e9e9e9")
             .attr("stroke", "white")
             .attr("stroke-width", 1)
             .attr("note", d => d.id)
@@ -139,14 +115,14 @@
             .on("mouseout", mouseLeaveState);
 
         // tooltip setup
-        let tooltipWidth = 130;
+        let tooltipWidth = 100;
         let tooltipHeight = 50;
 
         let tooltip = usCovidMap.append("g")
             .attr("visibility", "hidden");
 
         tooltip.append("rect")
-            .attr("fill", "#454545")
+            .attr("fill", "rgb(95, 95, 95)")
             .attr("x", -tooltipWidth / 2.0)
             .attr("y", 0)
             .attr("rx", 5)
@@ -159,7 +135,7 @@
             .attr("fill", "white")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "hanging")
-            .attr("font-family", "sans-serif")
+            .attr("font-size", "13px")
             .attr("x", 0)
             .attr("y", 8);
 
@@ -168,7 +144,7 @@
             .attr("fill", "white")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "hanging")
-            .attr("font-family", "sans-serif")
+            .attr("font-size", "13px")
             .attr("x", 0)
             .attr("y", 28);
 
@@ -193,7 +169,7 @@
                 .attr("opacity", 0.3)
 
             // highlight and shadow effect
-            state.attr("opacity", 1).style("filter", "drop-shadow(12px 12px 7px rgba(0,0,0,0.5))")
+            state.attr("opacity", 1).style("filter", "drop-shadow(10px 10px 5px rgba(0,0,0,0.5))")
 
             // tooltip
             tooltip.style("visibility", "visible")
@@ -243,7 +219,7 @@
             document.getElementById("date").innerHTML = selectedDate.date;
 
             usCovidMap.selectAll(".states")
-                .transition().duration(180)
+                .transition().duration(150)
                 .style("fill", d => colorScale(selectedDate.states[idToState[parseInt(d.id)]]))
         }
 
@@ -254,6 +230,137 @@
         slider.addEventListener('input', () => renderStates(stateByDate[slider.value]))
     }
     requestData();
+
+</script>
+
+<script>
+    const svg = d3.select("svg#airplane");
+
+    const width = svg.attr("width");
+    const height = svg.attr("height");
+
+    const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+
+    const chartWidth = width - margin.left - margin.right;
+    const chartHeight = height - margin.top - margin.bottom;
+
+    let chartArea = svg.append("g").attr("id", "points")
+        .attr("transform", `translate(-140,-130)`);
+
+    d3.csv("datasets/us_travel_daily.csv", d3.autoType)
+        .then((data) => {
+            let dataCleaned = [];
+
+            // year removed from date column
+            data.forEach((d) => {
+                d["Date"] = d["Date"].substring(0, d["Date"].lastIndexOf("/"))
+            });
+
+            // flatten the number of travelers for each year
+            for (let c = 2019; c <= 2021; c++) {
+                for (let i = 0; i <= data.length; i++) {
+                    if (data[i]) {
+                        dataCleaned.push({
+                            "date": new Date(data[i]["Date"] + "/" + c),
+                            "travelers": data[i][c + " Traveler Throughput"] ? Number(data[i][c + " Traveler Throughput"].replace(/,/g, '')) : 0
+                        });
+                    }
+                }
+            }
+
+            // filter the dates
+            var startDate = new Date("1/21/2020");
+            var endDate = new Date("12/5/2020");
+
+            dataCleaned = dataCleaned.filter((d) => {
+                return d["date"] >= startDate && d["date"] <= endDate;
+            });
+
+            dataCleaned = dataCleaned.sort((a, b) => (a["date"] > b["date"]) ? 1 : -1);
+
+            // call when slider changes
+            function showTravelers(index) {
+                const numExtent = d3.extent(dataCleaned, d => d['travelers']);
+                let numSquare = Math.ceil((dataCleaned[index]["travelers"] / numExtent[1]) * 120);
+
+                let rects = [];
+                let n = 0;
+                let brightColor = '#c9cbcc';
+                let darkColor = '#585858';
+
+                for (let y = 0; y < 20; y++) {
+                    for (let x = 0; x < 6; x++) {
+                        n++;
+                        if (n > numSquare && x >= 3) {
+                            rects.push(
+                                {
+                                    x: x * 20 + 10,
+                                    y: y * 25,
+                                    color: brightColor
+                                });
+                        } else if (n > numSquare) {
+                            rects.push(
+                                {
+                                    x: x * 20,
+                                    y: y * 25,
+                                    color: brightColor
+                                });
+                        } else if (n <= numSquare && x >= 3) {
+                            rects.push(
+                                {
+                                    x: x * 20 + 10,
+                                    y: y * 25,
+                                    color: darkColor
+                                });
+                        } else {
+                            rects.push(
+                                {
+                                    x: x * 20,
+                                    y: y * 25,
+                                    color: darkColor
+                                });
+                        }
+                    }
+                }
+
+                // rects.forEach((d, i) => {
+                //   let rect = chartArea.append("rect")
+                //     .attr('x', 250 + d["x"])
+                //     .attr('y', 250 + d["y"])
+                //     .attr('width', 20)
+                //     .attr('height', 25)
+                //     .attr('fill', d["color"])
+                //     .transition().duration(200)
+                // });
+
+                chartArea.selectAll("rect").data(rects)
+                    .join(
+                        enter => {
+                            enter.append("rect")
+                                .attr('x', d => 250 + d["x"])
+                                .attr('y', d => 250 + d["y"])
+                                .attr('width', 15)
+                                .attr('height', 20)
+                                .attr('fill', d => d["color"])
+                        },
+                        update => update
+                            .transition().duration(150)
+                            .attr('fill', d => d["color"]),
+                        exit => {
+                            exit.remove()
+                        }
+                    );
+            }
+
+
+
+            showTravelers(0);
+
+            let slider = document.getElementById("slider");
+            slider.addEventListener('input', () => showTravelers(slider.value));
+        }, (error) => {
+            console.log(error);
+        });
 
 </script>
 
