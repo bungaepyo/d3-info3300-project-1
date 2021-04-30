@@ -35,6 +35,22 @@ span{
     color: rgb(255, 94, 94);
 }
 
+.svg-title {
+    display: inline;
+    font-size: 20px;
+    color: rgb(58, 58, 58);
+}
+
+#map-title {
+    margin-left: 35%;
+    margin-right: auto;
+}
+
+#plane-title {
+    margin-left: 20%;
+    margin-right: auto;
+}
+
 /* svg */
 #airplane {
     background-image: url("background.png");
