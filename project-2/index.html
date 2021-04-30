@@ -8,12 +8,13 @@
 
 <body>
     <div class="intro">
-        <h1>Interactive U.S. State <span>Coronavirus</span> Stats Over Time</h1>
+        <h1>How the <span>Coronavirus</span> Affected U.S. States and Air Travel</h1>
         <p class="name">Yubin Heo, Jason Kim, Toby Ko</p>
-        <p>COVID-19 has been impacting everyone's lives around the globe, and it is still effective now. Although
-            vaccines have developed and alleviated the terrifying speed of the spread, the horror of the increasing
-            number of infected people still exists. Our team aims to identify the chain effect the virus brought to
-            the travel industry and the correlation between them.</p>
+        <p>The COVID-19 pandemic has given significant impact to everyone's lives around the world. 
+            Although the vaccine rollouts have provided relief from the terrifying speed of the infection, 
+            the coronavirus and its increasing number of mutations still remain at risk. Our project focuses
+            on identifying the relationship between the pandemic and air travel to directly visualize 
+            how the virus affected the travel industry.</p>
         <div class="slider-date">
             <input class="slider" id="slider" type="range" min="0" max="418" step="1" value="0" list="steplist">
             <p id="date"></p>
@@ -323,16 +324,6 @@
                     }
                 }
 
-                // rects.forEach((d, i) => {
-                //   let rect = chartArea.append("rect")
-                //     .attr('x', 250 + d["x"])
-                //     .attr('y', 250 + d["y"])
-                //     .attr('width', 20)
-                //     .attr('height', 25)
-                //     .attr('fill', d["color"])
-                //     .transition().duration(200)
-                // });
-
                 chartArea.selectAll("rect").data(rects)
                     .join(
                         enter => {
@@ -352,12 +343,11 @@
                     );
             }
 
-
-
             showTravelers(0);
 
             let slider = document.getElementById("slider");
             slider.addEventListener('input', () => showTravelers(slider.value));
+
         }, (error) => {
             console.log(error);
         });
