@@ -7,7 +7,6 @@
             .mouseover {
                 stroke: #636363;
                 fill: none;
-                stroke-width: 3px;
                 pointer-events: none;
             }
 
@@ -23,10 +22,6 @@
             <p id="date"></p>
             <input id="slider" type="range" min="0" max="418" step="1" value="0">
         </div>
-        <div>
-            <p id="stateName"></p>
-            <p id="stateCount"></p>
-        </div>
     </body>
 
     <script>
@@ -36,28 +31,27 @@
         const usCovidMap = usCovidSvg.append("g");
 
         const requestData = async function() {
+            // load data
             const us = await d3.json("datasets/counties-10m.json");
             const usCovidStates = await d3.csv("datasets/all-states-history.csv");
             const usStateNames = await d3.tsv("datasets/us-state-names.tsv");
-            // const timeParser = d3.timeParse('%Y-%m-%d');
             console.log(usCovidStates);
 
-            // list of state codes
+            // generate state code list used in usCovidStates
             let stateCodes = []
             usCovidStates.slice(0,56).forEach(d => {
                 stateCodes.push(d.state);
             });
 
-            // state id to code
+            // map state id to state code
             let idToState = {}
             usStateNames.forEach( d => {
                 if(stateCodes.indexOf(d.code) > -1) {
                     idToState[d.id] = d.code;
                 }
             });
-            console.log(idToState);
 
-            // state covid count by date
+            // reorganize 56 states covid data by date
             let stateByDate = [];
             usCovidStates.forEach(d => {
                 let positiveIncrease = parseInt(d.positiveIncrease);
@@ -77,7 +71,7 @@
             stateByDate = stateByDate.reverse();
             console.log(stateByDate);
 
-            // map projection
+            // initial map projection
             let projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 305]);
             let path = d3.geoPath().projection(projection);
 
@@ -101,11 +95,46 @@
                       .on("mouseenter", mouseEnterState)
                       .on("mouseout",  mouseLeaveState);
 
+            // tooltip setup
+            let tooltipWidth = 130;
+            let tooltipHeight = 50;
+        
+            let tooltip = usCovidMap.append("g")
+                                    .attr("visibility","hidden");
+
+            tooltip.append("rect")
+                   .attr("fill", "#454545")
+                   .attr("x", -tooltipWidth / 2.0)
+                   .attr("y", 0)
+                   .attr("rx", 5)
+                   .attr("ry", 5)
+                   .attr("width",tooltipWidth)
+                   .attr("height",tooltipHeight)
+
+            let textName = tooltip.append("text")
+                                  .attr("id", "stateName")
+                                  .attr("fill", "white")
+                                  .attr("text-anchor","middle")
+                                  .attr("alignment-baseline","hanging")
+                                  .attr("font-family", "sans-serif")
+                                  .attr("x", 0)
+                                  .attr("y", 8);
+
+            let textCount = tooltip.append("text")
+                                   .attr("id", "stateCount")
+                                   .attr("fill", "white")
+                                   .attr("text-anchor","middle")
+                                   .attr("alignment-baseline","hanging")
+                                   .attr("font-family", "sans-serif")
+                                   .attr("x", 0)
+                                   .attr("y", 28);
+
+            // newMesh for mouseover
             let newMesh = usCovidMap.append("path")
                                     .attr("class","mouseover")
                                     .attr("d", "");
 
-            // State mouse enter
+            // mouse enter function
             function mouseEnterState() {
                 let state = d3.select(this);
                 let stateID = state.datum().id;
@@ -116,24 +145,43 @@
                 let name = usStateNames.find(element => element.code === code).name;
                 let count = data[code];
 
+                // fade out other states
                 usCovidMap.selectAll(".states")
                           .attr("opacity", 0.3)
                 
-                state.attr("opacity", 1)
+                // highlight and shadow effect
+                state.attr("opacity", 1).style("filter", "drop-shadow(12px 12px 7px rgba(0,0,0,0.5))")
 
-                document.getElementById("stateName").innerHTML = name;
-                document.getElementById("stateCount").innerHTML = count > 0 ? count : 0;
+                // tooltip
+                tooltip.style("visibility","visible")
+                let bounds = path.bounds( state.datum() );
+                let xPos = (bounds[0][0]+bounds[1][0])/2.0;
+                let yPos = bounds[1][1];
+                let tipHeight = bounds[1][1] - bounds[0][1];
+                if (yPos > 350) {
+                    tooltip.attr("transform",`translate(${xPos},${yPos-tipHeight-tooltipHeight-10})`);
+                } else {
+                    tooltip.attr("transform",`translate(${xPos},${yPos+10})`);
+                }
 
+                // text
+                textName.text(name);
+                textCount.text(count > 0 ? count : 0)
+
+                // mouseover state
                 let mouseOverState = topojson.mesh(us, us.objects.states, function(a, b) { return a.id === stateID || b.id === stateID; });
                 newMesh.datum(mouseOverState).attr("d", path)
             }
             
-            // State mouse out
+            // mouse out function
             function mouseLeaveState() {
                 let state = d3.select(this);
+                state.style("filter", "none")
 
                 usCovidMap.selectAll(".states")
                           .attr("opacity", 1)
+                
+                tooltip.style("visibility","hidden");
 
                 document.getElementById("stateName").innerHTML = "";
                 document.getElementById("stateCount").innerHTML = "";
@@ -141,25 +189,25 @@
                 newMesh.attr("d", "")
             }
 
-            // Color scale
+            // color scale (hardcoded 10,000 due to outliers)
             const colorScale = d3.scaleQuantile()
                                  .domain([0,10000])
                                  .range(["#ffd9d9","#ffa8a8","#ff5e5e","#ff2929"]);
 
-            // Render states
+            // function that re-renders states according to selectedDate
             function renderStates(selectedDate) {
                 
                 document.getElementById("date").innerHTML = selectedDate.date;
 
                 usCovidMap.selectAll(".states")
-                          .transition().duration(200)
+                          .transition().duration(180)
                           .style("fill", d => colorScale( selectedDate.states[idToState[parseInt(d.id)]]))
             }
 
-            // render default
+            // default render
             renderStates(stateByDate[slider.value])
 
-            //slider
+            // slider eventListener
             slider.addEventListener('input', () => renderStates(stateByDate[slider.value]))
         }
         requestData();
