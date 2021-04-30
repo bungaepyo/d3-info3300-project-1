@@ -83,6 +83,19 @@ span{
     margin-left: 20px;
 }
 
+.slider-ticks {
+    display: inline-flex;
+    list-style: none;
+    padding-left: 0px;
+}
+
+.ticks {
+    padding-left: 9px;
+    transform:rotate(-90deg);
+    color: rgb(100, 100, 100);
+    font-size: small;
+}
+
 /* data visualizations */
 .data-visual{
   display: flex;
