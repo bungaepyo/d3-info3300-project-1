@@ -6,6 +6,51 @@ body, svg {
     /* color: rgba(167, 167, 167, 0.5); */
 }
 
+/* intro */
+.intro{
+    margin: 100px auto;
+    width: 650px;
+    color: rgb(58, 58, 58);
+}
+  
+.intro h1{
+    font-size: 45px;
+    text-align: left;
+    margin-bottom: 0px;
+}
+  
+.intro p{
+    line-height: 1.4em;
+    font-size: 18px;
+    text-align: left;
+}
+  
+.intro .name{
+    margin-top: 5px;
+    font-size: 13px;
+    color: rgb(100, 100, 100);
+}
+  
+span{
+    color: rgb(255, 94, 94);
+}
+
+.svg-title {
+    display: inline;
+    font-size: 25px;
+    color: rgb(58, 58, 58);
+}
+
+#map-title {
+    margin-left: 35%;
+    margin-right: auto;
+}
+
+#plane-title {
+    margin-left: 20%;
+    margin-right: auto;
+}
+
 /* svg */
 #airplane {
     background-image: url("background.png");
@@ -13,21 +58,24 @@ body, svg {
     color: #e9e9e9;
     align-items: center;
     justify-content: center;
-    /* border: 1px solid rgb(179, 179, 179);
-    border-radius: 10px; */
 }
 
+.mouseover {
+<<<<<<< HEAD
+  stroke: #636363;
+  fill: none;
+  pointer-events: none;
+=======
+    fill: none;
+    pointer-events: none;
+>>>>>>> ee9c13f8d6315c004c5bcc0f876ede39ac48e2ed
+}
+
+/* slider */
 #slider {
     width: 500px;
 }
 
-.mouseover {
-  stroke: #636363;
-  fill: none;
-  pointer-events: none;
-}
-
-/* slider */
 .slider {
     -webkit-appearance: none;
     background: #e4e4e4;
@@ -46,50 +94,54 @@ body, svg {
     border-radius: 5px;
 }
 
-#date {
-  font-family: sans-serif;
-  font-size: 15px;
-  font-weight: bold;
-  margin-left: 20px;
-}
-
 .slider-date{
-  display: flex;
+    display: flex;
 }
 
-/* intro */
-.intro{
-  margin: 100px auto;
-  width: 650px;
-  color: rgb(58, 58, 58);
+#date {
+    font-family: sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    margin-left: 20px;
 }
 
-.intro h1{
-  font-size: 45px;
-  text-align: left;
-  margin-bottom: 0px;
+.slider-ticks {
+    display: inline-flex;
+    list-style: none;
+    padding-left: 0px;
 }
 
-.intro p{
-  line-height: 1.4em;
-  font-size: 18px;
-  text-align: left;
-}
-
-.intro .name{
-  margin-top: 5px;
-  font-size: 13px;
-  color: rgb(100, 100, 100);
-}
-
-span{
-  color: rgb(255, 94, 94);
+.ticks {
+    padding-left: 9px;
+    transform:rotate(-90deg);
+    color: rgb(100, 100, 100);
+    font-size: small;
 }
 
 /* data visualizations */
 .data-visual{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* filter buttons */
+#mapFilterButtons {
+    margin-bottom: 100px;
+    margin-left: 25%;
+}
+
+.filterButton {
+    cursor: pointer;
+    border: none;
+    padding: 12px 16px;
+}
+  
+.filterButton:hover {
+    background-color: #ddd;
+}
+
+.filterButton.active {
+    background-color: #666;
+    color: white;
 }
