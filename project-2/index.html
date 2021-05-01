@@ -40,7 +40,7 @@
         </ul>
     </div>
     <div class="svg-title">
-        <h1 class="svg-title" id="map-title">New Cases in U.S. States</h1>
+        <h1 class="svg-title" id="map-title">COVID-19 in U.S. States</h1>
         <h1 class="svg-title" id="plane-title">Traveler Throughput</h1>
     </div>
     <div class="data-visual">
@@ -51,6 +51,14 @@
             <svg id="airplane" height="550" width="350"></svg>
         </div>
     </div>
+    <div>
+        <div id="mapFilterButtons">
+            <button id="positiveIncrease" class="filterButton active">Positive Increase</button>
+            <button id="deathIncrease" class="filterButton">Death Increase</button>
+            <button id="hospitalizedIncrease" class="filterButton">Hospitalized Increase</button>
+            <button id="totalTestResultsIncrease" class="filterButton">Total Test Results Increase</button>
+        </div>
+    </div>
 </body>
 
 <script>
@@ -58,6 +66,7 @@
     const usCovidWidth = usCovidSvg.attr("width");
     const usCovidHeight = usCovidSvg.attr("height");
     const usCovidMap = usCovidSvg.append("g");
+    let filterCategory;
 
     const requestData = async function () {
         // load data
@@ -84,15 +93,30 @@
         let stateByDate = [];
         usCovidStates.forEach(d => {
             let positiveIncrease = parseInt(d.positiveIncrease);
+            let deathIncrease = parseInt(d.deathIncrease);
+            let hospitalizedIncrease = parseInt(d.hospitalizedIncrease);
+            let totalTestResultsIncrease = parseInt(d.totalTestResultsIncrease);
+
             if (positiveIncrease > -1) {
                 if (!stateByDate.some(e => e.date === d.date)) {
                     stateByDate.push({
                         "date": d.date,
-                        "states": {}
-                    })
-                    stateByDate.find(e => e.date == d.date).states[d.state] = positiveIncrease;
+                        "positiveIncrease": {},
+                        "deathIncrease": {},
+                        "hospitalizedIncrease": {},
+                        "totalTestResultsIncrease": {}
+                    });
+                    let target = stateByDate.find(e => e.date == d.date);
+                    target.positiveIncrease[d.state] = positiveIncrease;
+                    target.deathIncrease[d.state] = deathIncrease;
+                    target.hospitalizedIncrease[d.state] = hospitalizedIncrease;
+                    target.totalTestResultsIncrease[d.state] = totalTestResultsIncrease;
                 } else {
-                    stateByDate.find(e => e.date == d.date).states[d.state] = positiveIncrease;
+                    let target = stateByDate.find(e => e.date == d.date);
+                    target.positiveIncrease[d.state] = positiveIncrease;
+                    target.deathIncrease[d.state] = deathIncrease;
+                    target.hospitalizedIncrease[d.state] = hospitalizedIncrease;
+                    target.totalTestResultsIncrease[d.state] = totalTestResultsIncrease;
                 }
             }
         });
@@ -138,7 +162,7 @@
             .attr("rx", 5)
             .attr("ry", 5)
             .attr("width", tooltipWidth)
-            .attr("height", tooltipHeight)
+            .attr("height", tooltipHeight);
 
         let textName = tooltip.append("text")
             .attr("id", "stateName")
@@ -163,23 +187,76 @@
             .attr("class", "mouseover")
             .attr("d", "");
 
+        // filter data in map
+        function filterMap(selectedCategory) {
+            filterCategory = selectedCategory;
+
+            renderStates(stateByDate[slider.value]);
+
+            let buttonID = ["positiveIncrease", "deathIncrease", "hospitalizedIncrease", "totalTestResultsIncrease"];
+            buttonID.forEach( d => {
+                document.getElementById(d).classList.remove("active");
+            })
+            document.getElementById(filterCategory).classList.add("active");
+        }
+
+        // function that re-renders states according to selectedDate
+        function renderStates(selectedDate) {
+
+            document.getElementById("date").innerHTML = selectedDate.date;
+            
+            usCovidMap.selectAll(".states")
+                .transition().duration(150)
+                .style("fill", d => {
+                    if (filterCategory == "positiveIncrease") {
+                        return positiveScale(selectedDate[filterCategory][idToState[parseInt(d.id)]])
+                    } else if (filterCategory == "deathIncrease") {
+                        return deathScale(selectedDate[filterCategory][idToState[parseInt(d.id)]])
+                    } else if (filterCategory == "hospitalizedIncrease") {
+                        return hospitalizedScale(selectedDate[filterCategory][idToState[parseInt(d.id)]])
+                    } else {
+                        return totalTestScale(selectedDate[filterCategory][idToState[parseInt(d.id)]]);
+                    }
+                });
+        }
+
+        // positive increase color scale (hardcoded 10,000 due to outliers)
+        const positiveScale = d3.scaleQuantile()
+                                .domain([0, 10000])
+                                .range(["#ffd9d9", "#ffa8a8", "#ff5e5e", "#ff2929"]);
+
+        // death increase color scale
+        const deathScale = d3.scaleQuantile()
+                             .domain([0, 200])
+                             .range(["#b9b8ff", "#706eff", "#3633ff", "#0400ff"]);
+
+        // hospitalized increase color scale
+        const hospitalizedScale = d3.scaleQuantile()
+                                    .domain([0, 400])
+                                    .range(["#ffedbd", "#ffdb7a", "#ffcc42", "#ffba00"]);
+        
+        // total test case increase color scale
+        const totalTestScale = d3.scaleQuantile()
+                                 .domain([0, 110000])
+                                 .range(["#4dc058", "#089000", "#0a5d00", "#063b00"]);
+
         // mouse enter function
         function mouseEnterState() {
             let state = d3.select(this);
             let stateID = state.datum().id;
             let date = document.getElementById("date").innerHTML;
-            let data = stateByDate.find(e => e.date == date).states;
+            let data = stateByDate.find(e => e.date == date)[filterCategory];
 
-            let code = idToState[parseInt(stateID)]
+            let code = idToState[parseInt(stateID)];
             let name = usStateNames.find(element => element.code === code).name;
             let count = data[code];
 
             // fade out other states
             usCovidMap.selectAll(".states")
-                .attr("opacity", 0.3)
+                .attr("opacity", 0.3);
 
             // highlight and shadow effect
-            state.attr("opacity", 1).style("filter", "drop-shadow(10px 10px 5px rgba(0,0,0,0.5))")
+            state.attr("opacity", 1).style("filter", "drop-shadow(10px 10px 5px rgba(0,0,0,0.5))");
 
             // tooltip
             tooltip.style("visibility", "visible")
@@ -195,49 +272,40 @@
 
             // text
             textName.text(name);
-            textCount.text(count > 0 ? count : 0)
+            textCount.text(count > 0 ? count : 0);
 
             // mouseover state
             let mouseOverState = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
-            newMesh.datum(mouseOverState).attr("d", path)
+            newMesh.datum(mouseOverState).attr("d", path);
         }
 
         // mouse out function
         function mouseLeaveState() {
             let state = d3.select(this);
-            state.style("filter", "none")
+            state.style("filter", "none");
 
             usCovidMap.selectAll(".states")
-                .attr("opacity", 1)
+                .attr("opacity", 1);
 
             tooltip.style("visibility", "hidden");
 
             document.getElementById("stateName").innerHTML = "";
             document.getElementById("stateCount").innerHTML = "";
 
-            newMesh.attr("d", "")
-        }
-
-        // color scale (hardcoded 10,000 due to outliers)
-        const colorScale = d3.scaleQuantile()
-            .domain([0, 10000])
-            .range(["#ffd9d9", "#ffa8a8", "#ff5e5e", "#ff2929"]);
-
-        // function that re-renders states according to selectedDate
-        function renderStates(selectedDate) {
-
-            document.getElementById("date").innerHTML = selectedDate.date;
-
-            usCovidMap.selectAll(".states")
-                .transition().duration(150)
-                .style("fill", d => colorScale(selectedDate.states[idToState[parseInt(d.id)]]))
+            newMesh.attr("d", "");
         }
 
         // default render
-        renderStates(stateByDate[slider.value])
+        filterMap('positiveIncrease');
 
         // slider eventListener
-        slider.addEventListener('input', () => renderStates(stateByDate[slider.value]))
+        slider.addEventListener('input', () => renderStates(stateByDate[slider.value]));
+
+        //button eventListener
+        positiveIncrease.addEventListener('click', () => filterMap('positiveIncrease'));
+        deathIncrease.addEventListener('click', () => filterMap('deathIncrease'));
+        hospitalizedIncrease.addEventListener('click', () => filterMap('hospitalizedIncrease'));
+        totalTestResultsIncrease.addEventListener('click', () => filterMap('totalTestResultsIncrease'));
     }
     requestData();
 
