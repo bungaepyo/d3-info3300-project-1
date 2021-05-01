@@ -21,7 +21,7 @@
     </div>
     <div class="data-visual">
         <div class="one">
-            <svg id="usCovidSvg" height="650" width="975"></svg>
+            <svg id="usCovidSvg" height="650" width="980"></svg>
             <!-- <ul>
                 <li>JAN</li>
                 <li>FEB</li>
@@ -122,7 +122,7 @@
             .attr("visibility", "hidden");
 
         tooltip.append("rect")
-            .attr("fill", "rgb(95, 95, 95)")
+            .attr("fill", "rgb(255, 94, 94)")
             .attr("x", -tooltipWidth / 2.0)
             .attr("y", 0)
             .attr("rx", 5)
@@ -169,7 +169,7 @@
                 .attr("opacity", 0.3)
 
             // highlight and shadow effect
-            state.attr("opacity", 1).style("filter", "drop-shadow(10px 10px 5px rgba(0,0,0,0.5))")
+            state.attr("opacity", 1).style("filter", "drop-shadow(10px 10px 10px rgba(167, 167, 167, 0.7))")
 
             // tooltip
             tooltip.style("visibility", "visible")
@@ -269,8 +269,8 @@
             }
 
             // filter the dates
-            var startDate = new Date("1/21/2020");
-            var endDate = new Date("12/5/2020");
+            var startDate = new Date("1/13/2020");
+            var endDate = new Date("3/7/2021");
 
             dataCleaned = dataCleaned.filter((d) => {
                 return d["date"] >= startDate && d["date"] <= endDate;
@@ -283,6 +283,7 @@
                 const numExtent = d3.extent(dataCleaned, d => d['travelers']);
                 let numSquare = Math.ceil((dataCleaned[index]["travelers"] / numExtent[1]) * 96);
 
+                console.log(numSquare)
                 let rects = [];
                 let n = 0;
                 let brightColor = '#c9cbcc';

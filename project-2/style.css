@@ -3,7 +3,7 @@
 body, svg {
     font-family: "Roboto", sans-serif;
     font-weight: 300;
-    color: rgb(31, 31, 37);
+    /* color: rgba(167, 167, 167, 0.5); */
 }
 
 /* svg */
@@ -22,9 +22,9 @@ body, svg {
 }
 
 .mouseover {
-    /* stroke: #636363; */
-    fill: none;
-    pointer-events: none;
+  stroke: #636363;
+  fill: none;
+  pointer-events: none;
 }
 
 /* slider */
