@@ -441,7 +441,7 @@
                 function mouseEnterState() {
                     airplaneRect.style("visibility", "visible");
                     travelerText.text("Travelers");
-                    airplaneText.text((dataCleaned[index]["travelers"] / numExtent[1]).toFixed(2) + "%");
+                    airplaneText.text((dataCleaned[index]["travelers"] / numExtent[1]).toFixed(2) * 100 + "%");
                 }
 
                 function mouseLeaveState() {
