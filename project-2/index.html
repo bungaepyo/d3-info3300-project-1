@@ -8,7 +8,7 @@
 
 <body>
     <div class="intro">
-        <h1>How the <span>Coronavirus</span> Affected U.S. States and Air Travel</h1>
+        <h1>How the <span id="intro-span">Coronavirus</span> Affected U.S. States and Air Travel</h1>
         <p class="name">Yubin Heo, Jason Kim, Toby Ko</p>
         <p>The COVID-19 pandemic has given significant impact to everyone's lives around the world.
             Although the vaccine rollouts have provided relief from the terrifying speed of the infection,
@@ -18,60 +18,44 @@
             positive
             cases each state had during the course of the pandemic. Also to the bottom right, the airplane model
             demonstrates the change in total traveler throughput with the same daily scale.</p>
-        <div class="slider-date">
-            <input class="slider" id="slider" type="range" min="0" max="418" step="1" value="0">
-            <p id="date"></p>
+        <div class="intro-slider">
+            <div class="slider-date">
+                <input class="slider" id="slider" type="range" min="0" max="418" step="1" value="0">
+                <p id="date"></p>
+            </div>
+            <ul class="slider-ticks">
+                <li class="ticks">JAN</li>
+                <li class="ticks">FEB</li>
+                <li class="ticks">MAR</li>
+                <li class="ticks">APR</li>
+                <li class="ticks">MAY</li>
+                <li class="ticks">JUN</li>
+                <li class="ticks">JUL</li>
+                <li class="ticks">AUG</li>
+                <li class="ticks">SEP</li>
+                <li class="ticks">OCT</li>
+                <li class="ticks">NOV</li>
+                <li class="ticks">DEC</li>
+                <li class="ticks">JAN</li>
+                <li class="ticks">FEB</li>
+                <li class="ticks">MAR</li>
+            </ul>
         </div>
-        <ul class="slider-ticks">
-            <li class="ticks">JAN</li>
-            <li class="ticks">FEB</li>
-            <li class="ticks">MAR</li>
-            <li class="ticks">APR</li>
-            <li class="ticks">MAY</li>
-            <li class="ticks">JUN</li>
-            <li class="ticks">JUL</li>
-            <li class="ticks">AUG</li>
-            <li class="ticks">SEP</li>
-            <li class="ticks">OCT</li>
-            <li class="ticks">NOV</li>
-            <li class="ticks">DEC</li>
-            <li class="ticks">JAN</li>
-            <li class="ticks">FEB</li>
-            <li class="ticks">MAR</li>
-        </ul>
-    </div>
-    <div class="svg-title">
-        <h1 class="svg-title" id="map-title">COVID-19 in U.S. States</h1>
-        <h1 class="svg-title" id="plane-title">Traveler Throughput</h1>
     </div>
     <div class="data-visual">
         <div class="one">
+            <h1 class="svg-title" id="map-title">COVID-19 in U.S. States</h1>
             <svg id="usCovidSvg" height="650" width="980"></svg>
-            <!-- <ul>
-                <li>JAN</li>
-                <li>FEB</li>
-                <li>MAR</li>
-                <li>APR</li>
-                <li>MAY</li>
-                <li>JUN</li>
-                <li>Jul</li>
-                <li>Aug</li>
-                <li>Sep</li>
-                <li>Oct</li>
-                <li>Nov</li>
-                <li>Dec</li>
-            </ul> -->
+            <div id="mapFilterButtons">
+                <button id="positiveIncrease" class="filterButton active">Positive Increase</button>
+                <button id="deathIncrease" class="filterButton">Death Increase</button>
+                <button id="hospitalizedIncrease" class="filterButton">Hospitalized Increase</button>
+                <button id="totalTestResultsIncrease" class="filterButton">Total Test Results Increase</button>
+            </div>
         </div>
         <div class="plane">
+            <h1 class="svg-title" id="plane-title">Traveler Throughput</h1>
             <svg id="airplane" height="550" width="350"></svg>
-        </div>
-    </div>
-    <div>
-        <div id="mapFilterButtons">
-            <button id="positiveIncrease" class="filterButton active">Positive Increase</button>
-            <button id="deathIncrease" class="filterButton">Death Increase</button>
-            <button id="hospitalizedIncrease" class="filterButton">Hospitalized Increase</button>
-            <button id="totalTestResultsIncrease" class="filterButton">Total Test Results Increase</button>
         </div>
     </div>
 </body>
@@ -171,7 +155,7 @@
             .attr("visibility", "hidden");
 
         tooltip.append("rect")
-            .attr("fill", "rgb(255, 94, 94)")
+            .attr("fill", "#636363")
             .attr("x", -tooltipWidth / 2.0)
             .attr("y", 0)
             .attr("rx", 5)
@@ -224,12 +208,20 @@
                 .transition().duration(150)
                 .style("fill", d => {
                     if (filterCategory == "positiveIncrease") {
+                        document.getElementById("intro-span").style.color = "#ff5e5e"
+                        document.getElementById("slider").className = "slider-red";
                         return positiveScale(selectedDate[filterCategory][idToState[parseInt(d.id)]])
                     } else if (filterCategory == "deathIncrease") {
+                        document.getElementById("intro-span").style.color = "#4aabfa";
+                        document.getElementById("slider").className = "slider-blue";
                         return deathScale(selectedDate[filterCategory][idToState[parseInt(d.id)]])
                     } else if (filterCategory == "hospitalizedIncrease") {
+                        document.getElementById("intro-span").style.color = "#ffcc42";
+                        document.getElementById("slider").className = "slider-yellow";
                         return hospitalizedScale(selectedDate[filterCategory][idToState[parseInt(d.id)]])
                     } else {
+                        document.getElementById("intro-span").style.color = "#50a86d";
+                        document.getElementById("slider").className = "slider-green";
                         return totalTestScale(selectedDate[filterCategory][idToState[parseInt(d.id)]]);
                     }
                 });
@@ -243,7 +235,7 @@
         // death increase color scale
         const deathScale = d3.scaleQuantile()
             .domain([0, 200])
-            .range(["#b9b8ff", "#706eff", "#3633ff", "#0400ff"]);
+            .range(["#b8dfff", "#8ecafc", "#4aabfa", "#1192fc"]);
 
         // hospitalized increase color scale
         const hospitalizedScale = d3.scaleQuantile()
@@ -253,7 +245,7 @@
         // total test case increase color scale
         const totalTestScale = d3.scaleQuantile()
             .domain([0, 110000])
-            .range(["#4dc058", "#089000", "#0a5d00", "#063b00"]);
+            .range(["#a9dfbb", "#7bc092", "#50a86d", "#3b8153"]);
 
         // mouse enter function
         function mouseEnterState() {
@@ -338,7 +330,7 @@
     const chartHeight = height - margin.top - margin.bottom;
 
     let chartArea = svg.append("g").attr("id", "points")
-        .attr("transform", `translate(-140,-130)`);
+        .attr("transform", `translate(-137,-130)`);
 
     d3.csv("datasets/us_travel_daily.csv", d3.autoType)
         .then((data) => {
@@ -417,6 +409,51 @@
                     }
                 }
 
+                let airplaneRect = svg.append("rect")
+                    .attr("id", "airplaneRect")
+                    .attr("fill", "#636363")
+                    .attr("x", width / 2 - 50)
+                    .attr("y", 30)
+                    .attr("rx", 5)
+                    .attr("ry", 5)
+                    .attr("width", 100)
+                    .attr("height", 50)
+                    .attr("visibility", "hidden");
+
+                let travelerText = svg.append("text")
+                    .attr("id", "travelerText")
+                    .attr("fill", "white")
+                    .attr("text-anchor", "middle")
+                    .attr("alignment-baseline", "hanging")
+                    .attr("font-size", "13px")
+                    .attr("x", width / 2)
+                    .attr("y", 40)
+
+                let airplaneText = svg.append("text")
+                    .attr("id", "airplaneText")
+                    .attr("fill", "white")
+                    .attr("text-anchor", "middle")
+                    .attr("alignment-baseline", "hanging")
+                    .attr("font-size", "13px")
+                    .attr("x", width / 2)
+                    .attr("y", 58)
+
+                function mouseEnterState() {
+                    airplaneRect.style("visibility", "visible");
+                    travelerText.text("Travelers");
+                    airplaneText.text((dataCleaned[index]["travelers"] / numExtent[1]).toFixed(2) + "%");
+                }
+
+                function mouseLeaveState() {
+                    airplaneRect.style("visibility", "hidden");
+                    travelerText.text("");
+                    airplaneText.text("");
+                }
+
+                let svgAirplane = document.getElementById("airplane");
+                svgAirplane.addEventListener('mouseenter', mouseEnterState);
+                svgAirplane.addEventListener('mouseout', mouseLeaveState);
+
                 chartArea.selectAll("rect").data(rects)
                     .join(
                         enter => {
@@ -435,6 +472,7 @@
                         }
                     );
             }
+
 
             showTravelers(0);
 
